@@ -6,6 +6,10 @@ export default function Preview({ previewUrl, onRouteChange }) {
   const prevUrlRef = useRef(previewUrl);
   const iframeRef = useRef(null);
 
+  console.log(previewUrl, "previewUrl");
+  console.log(currentRoute, "currentRoute");
+  console.log(prevUrlRef.current, "prevUrlRef");
+
   useEffect(() => {
     if (prevUrlRef.current !== previewUrl) {
       prevUrlRef.current = previewUrl;
@@ -55,7 +59,9 @@ export default function Preview({ previewUrl, onRouteChange }) {
     );
   }
 
-  const fullUrl = previewUrl ? `${previewUrl}${currentRoute === "/" ? "" : currentRoute}` : "";
+  const fullUrl = previewUrl
+    ? `${previewUrl}${currentRoute === "/" ? "" : currentRoute}`
+    : "";
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>

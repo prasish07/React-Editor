@@ -34,7 +34,9 @@ function App() {
           }
         };
 
-        writeToTerminal("\r\n\x1b[32m✓ WebContainer booted successfully\x1b[0m\r\n");
+        writeToTerminal(
+          "\r\n\x1b[32m✓ WebContainer booted successfully\x1b[0m\r\n"
+        );
 
         // Step 2: Mount files
         writeToTerminal("\r\n\x1b[33mMounting files...\x1b[0m\r\n");
@@ -55,22 +57,33 @@ function App() {
         try {
           await webcontainer.fs.mkdir("/pages", { recursive: true });
           writeToTerminal("\x1b[36m✓ Created /pages directory\x1b[0m\r\n");
-        } catch (e) {
+        } catch {
           // Directory might already exist
         }
 
         // Write page files directly using writeFile instead of mount
         try {
-          await webcontainer.fs.writeFile("/pages/home.jsx", files["pages/home.jsx"].file.contents);
+          await webcontainer.fs.writeFile(
+            "/pages/home.jsx",
+            files["pages/home.jsx"].file.contents
+          );
           writeToTerminal("\x1b[36m✓ Written /pages/home.jsx\x1b[0m\r\n");
 
-          await webcontainer.fs.writeFile("/pages/about.jsx", files["pages/about.jsx"].file.contents);
+          await webcontainer.fs.writeFile(
+            "/pages/about.jsx",
+            files["pages/about.jsx"].file.contents
+          );
           writeToTerminal("\x1b[36m✓ Written /pages/about.jsx\x1b[0m\r\n");
 
-          await webcontainer.fs.writeFile("/pages/contact.jsx", files["pages/contact.jsx"].file.contents);
+          await webcontainer.fs.writeFile(
+            "/pages/contact.jsx",
+            files["pages/contact.jsx"].file.contents
+          );
           writeToTerminal("\x1b[36m✓ Written /pages/contact.jsx\x1b[0m\r\n");
 
-          writeToTerminal("\x1b[32m✓ All files created successfully\x1b[0m\r\n");
+          writeToTerminal(
+            "\x1b[32m✓ All files created successfully\x1b[0m\r\n"
+          );
 
           // Refresh file explorer to show new files
           if (fileExplorerRef.current && fileExplorerRef.current.refresh) {
@@ -79,40 +92,58 @@ function App() {
             }, 300);
           }
         } catch (e) {
-          writeToTerminal(`\r\n\x1b[31m✗ Error writing page files: ${e.message}\x1b[0m\r\n`);
+          writeToTerminal(
+            `\r\n\x1b[31m✗ Error writing page files: ${e.message}\x1b[0m\r\n`
+          );
           throw e;
         }
 
         // Small delay to ensure files are fully written
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 200));
 
         // Verify critical files exist
         try {
           const rootFiles = await webcontainer.fs.readdir("/");
-          writeToTerminal(`\r\n\x1b[36mFiles in root: ${rootFiles.join(", ")}\x1b[0m\r\n`);
+          writeToTerminal(
+            `\r\n\x1b[36mFiles in root: ${rootFiles.join(", ")}\x1b[0m\r\n`
+          );
 
           // Verify main.jsx exists
           try {
-            const mainContent = await webcontainer.fs.readFile("/main.jsx", "utf-8");
-            writeToTerminal(`\r\n\x1b[32m✓ Verified main.jsx exists (${mainContent.length} chars)\x1b[0m\r\n`);
+            const mainContent = await webcontainer.fs.readFile(
+              "/main.jsx",
+              "utf-8"
+            );
+            writeToTerminal(
+              `\r\n\x1b[32m✓ Verified main.jsx exists (${mainContent.length} chars)\x1b[0m\r\n`
+            );
           } catch (e) {
-            writeToTerminal(`\r\n\x1b[31m✗ Error reading main.jsx: ${e.message}\x1b[0m\r\n`);
+            writeToTerminal(
+              `\r\n\x1b[31m✗ Error reading main.jsx: ${e.message}\x1b[0m\r\n`
+            );
           }
 
           const pagesFiles = await webcontainer.fs.readdir("/pages");
-          writeToTerminal(`\r\n\x1b[36mFiles in /pages: ${pagesFiles.join(", ")}\x1b[0m\r\n`);
+          writeToTerminal(
+            `\r\n\x1b[36mFiles in /pages: ${pagesFiles.join(", ")}\x1b[0m\r\n`
+          );
 
           // Verify pages files exist
           for (const file of ["home.jsx", "about.jsx", "contact.jsx"]) {
             try {
-              const content = await webcontainer.fs.readFile(`/pages/${file}`, "utf-8");
-              writeToTerminal(`\r\n\x1b[32m✓ Verified /pages/${file} exists\x1b[0m\r\n`);
+              writeToTerminal(
+                `\r\n\x1b[32m✓ Verified /pages/${file} exists\x1b[0m\r\n`
+              );
             } catch (e) {
-              writeToTerminal(`\r\n\x1b[31m✗ Error reading /pages/${file}: ${e.message}\x1b[0m\r\n`);
+              writeToTerminal(
+                `\r\n\x1b[31m✗ Error reading /pages/${file}: ${e.message}\x1b[0m\r\n`
+              );
             }
           }
         } catch (e) {
-          writeToTerminal(`\r\n\x1b[33mWarning: Could not verify files: ${e.message}\x1b[0m\r\n`);
+          writeToTerminal(
+            `\r\n\x1b[33mWarning: Could not verify files: ${e.message}\x1b[0m\r\n`
+          );
         }
 
         // Step 3: Run npm install
@@ -129,7 +160,9 @@ function App() {
               installErrorOutput += data;
               // Check for the specific error
               if (data.includes("EIO: invalid file name")) {
-                writeToTerminal("\r\n\x1b[31m⚠ Detected EIO error in npm install output\x1b[0m\r\n");
+                writeToTerminal(
+                  "\r\n\x1b[31m⚠ Detected EIO error in npm install output\x1b[0m\r\n"
+                );
               }
             },
           })
@@ -137,17 +170,32 @@ function App() {
 
         const installExitCode = await install.exit;
         if (installExitCode === 0) {
-          writeToTerminal("\r\n\x1b[32m✓ npm install completed successfully\x1b[0m\r\n");
+          writeToTerminal(
+            "\r\n\x1b[32m✓ npm install completed successfully\x1b[0m\r\n"
+          );
         } else {
-          writeToTerminal(`\r\n\x1b[31m✗ npm install failed with exit code ${installExitCode}\x1b[0m\r\n`);
+          writeToTerminal(
+            `\r\n\x1b[31m✗ npm install failed with exit code ${installExitCode}\x1b[0m\r\n`
+          );
           if (installErrorOutput.includes("pages/home.jsx")) {
-            writeToTerminal("\r\n\x1b[33m⚠ Error related to pages/home.jsx detected\x1b[0m\r\n");
-            writeToTerminal("\x1b[33mTrying to verify file exists...\x1b[0m\r\n");
+            writeToTerminal(
+              "\r\n\x1b[33m⚠ Error related to pages/home.jsx detected\x1b[0m\r\n"
+            );
+            writeToTerminal(
+              "\x1b[33mTrying to verify file exists...\x1b[0m\r\n"
+            );
             try {
-              const exists = await webcontainer.fs.readFile("/pages/home.jsx", "utf-8");
-              writeToTerminal(`\x1b[32m✓ File exists and is readable (${exists.length} chars)\x1b[0m\r\n`);
+              const exists = await webcontainer.fs.readFile(
+                "/pages/home.jsx",
+                "utf-8"
+              );
+              writeToTerminal(
+                `\x1b[32m✓ File exists and is readable (${exists.length} chars)\x1b[0m\r\n`
+              );
             } catch (e) {
-              writeToTerminal(`\x1b[31m✗ Cannot read file: ${e.message}\x1b[0m\r\n`);
+              writeToTerminal(
+                `\x1b[31m✗ Cannot read file: ${e.message}\x1b[0m\r\n`
+              );
             }
           }
         }
@@ -173,7 +221,9 @@ function App() {
           if (serverReady) return; // Prevent duplicate calls
           serverReady = true;
           console.log("Server ready event fired:", { port, url });
-          writeToTerminal(`\r\n\x1b[32m✓ Dev server ready on port ${port}\x1b[0m\r\n`);
+          writeToTerminal(
+            `\r\n\x1b[32m✓ Dev server ready on port ${port}\x1b[0m\r\n`
+          );
           writeToTerminal(`\x1b[36mPreview URL: ${url}\x1b[0m\r\n`);
           if (mounted) {
             setPreviewUrl(url);
@@ -186,7 +236,9 @@ function App() {
         // Log when dev process exits (for debugging)
         dev.exit.then((code) => {
           if (code !== 0 && !serverReady) {
-            writeToTerminal(`\r\n\x1b[31m✗ Dev server exited with code ${code}\x1b[0m\r\n`);
+            writeToTerminal(
+              `\r\n\x1b[31m✗ Dev server exited with code ${code}\x1b[0m\r\n`
+            );
             if (mounted) {
               setIsStarting(false);
             }
@@ -209,7 +261,7 @@ function App() {
     };
   }, []);
 
-  const handleCodeChange = async (filePath, newCode) => {
+  const handleCodeChange = async (filePath) => {
     // File is already written by Editor component
     console.log(`File ${filePath} updated`);
     // Refresh file explorer to show any new files/directories
@@ -256,6 +308,7 @@ function App() {
             container={container}
             filePath={selectedFile}
             onCodeChange={handleCodeChange}
+            onFileSelect={setSelectedFile}
           />
         </div>
 
@@ -266,7 +319,9 @@ function App() {
                 <span>Preview URL:</span>
                 <input
                   type="text"
-                  value={`${previewUrl}${currentRoute === "/" ? "" : currentRoute}`}
+                  value={`${previewUrl}${
+                    currentRoute === "/" ? "" : currentRoute
+                  }`}
                   readOnly
                   onClick={(e) => e.target.select()}
                   style={{
@@ -282,7 +337,9 @@ function App() {
                 />
                 <button
                   onClick={() => {
-                    const fullUrl = `${previewUrl}${currentRoute === "/" ? "" : currentRoute}`;
+                    const fullUrl = `${previewUrl}${
+                      currentRoute === "/" ? "" : currentRoute
+                    }`;
                     navigator.clipboard.writeText(fullUrl);
                     alert("URL copied to clipboard!");
                   }}
